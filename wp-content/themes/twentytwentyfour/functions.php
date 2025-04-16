@@ -237,9 +237,6 @@ function my_theme_enqueue_vue_scripts() {
         // Enqueue the script (make it actually load on the page)
         wp_enqueue_script('my-vue-app-script');
 
-        // Note: Webpack bundle often includes CSS via JS (vue-style-loader),
-        // so explicitly enqueuing a separate CSS file might not be needed unless
-        // you configure Webpack's mini-css-extract-plugin.
     }
 }
 
@@ -253,13 +250,7 @@ add_action('wp_enqueue_scripts', 'my_theme_enqueue_vue_scripts');
 // Add this to your functions.php
 
 function my_vue_app_shortcode_handler($atts) {
-    // You could potentially pass attributes from the shortcode to the div
-    // $atts = shortcode_atts( array(
-    //     'message' => 'Default Message from Shortcode'
-    // ), $atts, 'my_vue_app' );
-
-    // Add data attributes if you want to pass data directly via HTML
-    // data-initial-message="' . esc_attr($atts['message']) . '"
+   
 
     return '<div id="#my-vue-app">Loading Vue Component...</div> '; // The ID must match main.js
 }
