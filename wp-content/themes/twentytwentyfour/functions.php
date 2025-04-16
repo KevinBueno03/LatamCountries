@@ -205,3 +205,64 @@ endif;
 
 add_action( 'init', 'twentytwentyfour_pattern_categories' );
 
+////
+function my_theme_enqueue_vue_scripts() {
+    $script_path = get_template_directory() . '/assets/js/vueapp.bundle.js';
+    $script_uri = get_template_directory_uri() . '/assets/js/vueapp.bundle.js';
+    $script_version = file_exists($script_path) ? filemtime($script_path) : '1.0.0'; // Cache busting
+
+    // Only enqueue if the script exists
+    if (file_exists($script_path)) {
+
+        // Register the script
+        wp_register_script(
+            'my-vue-app-script',          // Unique handle
+            $script_uri,                  // Path to the bundled script
+            array(),                      // Dependencies (e.g., 'jquery', can be empty)
+            $script_version,              // Version number (for cache busting)
+            true                          // Load in footer? (Recommended)
+        );
+
+        // Optional: Pass data from PHP to JavaScript using wp_localize_script
+        // This makes 'myVueAppData' object available in the global JS scope BEFORE your script runs
+      
+		 $data_to_pass = array(
+            'apiUrl' => rest_url(), // Example: Pass the WP REST API base URL
+            'nonce' => wp_create_nonce('wp_rest'), // Example: Pass a nonce for authenticated requests
+            'currentUser' => wp_get_current_user()->display_name, // Example: Pass user info
+        );
+        wp_localize_script('my-vue-app-script', 'myVueAppData', $data_to_pass);
+
+
+        // Enqueue the script (make it actually load on the page)
+        wp_enqueue_script('my-vue-app-script');
+
+        // Note: Webpack bundle often includes CSS via JS (vue-style-loader),
+        // so explicitly enqueuing a separate CSS file might not be needed unless
+        // you configure Webpack's mini-css-extract-plugin.
+    }
+}
+
+// Hook the function to the wp_enqueue_scripts action
+add_action('wp_enqueue_scripts', 'my_theme_enqueue_vue_scripts');
+
+
+
+/////////
+
+// Add this to your functions.php
+
+function my_vue_app_shortcode_handler($atts) {
+    // You could potentially pass attributes from the shortcode to the div
+    // $atts = shortcode_atts( array(
+    //     'message' => 'Default Message from Shortcode'
+    // ), $atts, 'my_vue_app' );
+
+    // Add data attributes if you want to pass data directly via HTML
+    // data-initial-message="' . esc_attr($atts['message']) . '"
+
+    return '<div id="#my-vue-app">Loading Vue Component...</div> '; // The ID must match main.js
+}
+add_shortcode('my_vue_app', 'my_vue_app_shortcode_handler');
+?>
+
